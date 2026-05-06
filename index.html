@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Clinica - Gestion de Atencion Medica</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
+        .resumen {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+        .btn-agregar {
+            padding: 8px 16px;
+            margin: 20px 0;
+            cursor: pointer;
+        }
+        .btn-eliminar {
+    padding: 4px 8px;
+    cursor: pointer;
+    background-color: #ffffff;  /* Blanco */
+    color: #333;                /* Texto negro/gris oscuro */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 12px;
+}
+.btn-eliminar:hover {
+    background-color: #f0f0f0;
+    border-color: #aaa;
+}
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 20px;
+            width: 450px;
+            border: 1px solid #ccc;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: inline-block;
+            width: 140px;
+        }
+        .form-group input, .form-group select {
+            padding: 5px;
+            width: 250px;
+        }
+        .modal-footer {
+            margin-top: 20px;
+            text-align: right;
+        }
+        button {
+            padding: 6px 12px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        .hidden {
+            display: none;
+        }
+        h1, h2, h3 {
+            margin: 10px 0;
+        }
+        hr {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>MÉDICO: Gestión de atención médica</h1>
+    <p>Atenciones: Procedimiento ($30.00), Consulta ($10.00), Control ($0)</p>
+    <p>Descuento: 40% para mujeres jovenes (25-50 años)</p>
+
+    <button class="btn-agregar" id="body_btAgregarPaciente">Agregar Paciente</button>
+
+    <hr>
+
+    <div class="resumen" id="body">
+        <h2>Totales</h2>
+        <p>Total recaudado: $<span id="body_lblTotalRecaudado">0.00</span></p>
+        <p>Total pacientes: <span id="body_lblTotalPacientes">0</span></p>
+        <p>Total descuentos: $<span id="body_lblTotalDescuentos">0.00</span></p>
+        
+        <h2>Porcentaje por Atencion</h2>
+        <p>Procedimiento: <span id="body_lblPorcentajeProcedimiento">0.00%</span></p>
+        <p>Consulta: <span id="body_lblPorcentajeConsulta">0.00%</span></p>
+        <p>Control: <span id="body_lblPorcentajeControl">0.00%</span></p>
+        
+        <h2>Porcentaje por Descuento</h2>
+        <p>Con descuento: <span id="body_lblPorcentajeConDescuento">0.00%</span></p>
+        <p>Sin descuento: <span id="body_lblPorcentajeSinDescuento">0.00%</span></p>
+
+        <h2>Promedios</h2>
+        <p> Promedio de Edad: <span id="body_lblPromedioEdad">0.00</span></p>
+
+    </div>
+
+    <h3>Lista de Pacientes</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Cedula</th>
+                <th>Sexo</th>
+                <th>Fecha de Nacimiento</th>
+                <th>Edad</th>
+                <th>Tipo Atencion</th>
+                <th>Costo</th>
+                <th>Descuento</th>
+                <th>Monto a Pagar</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="body_tbodyLista">
+            <tr><td colspan="12">No hay pacientes registrados</td></tr>
+        </tbody>
+    </table>
+
+    <!-- Modal Formulario -->
+    <div id="paciente" class="modal hidden">
+        <div class="modal-content">
+            <h3>Registrar Paciente</h3>
+            <div class="form-group">
+                <label>Nombre:</label>
+                <input type="text" id="paciente_inNombre">
+            </div>
+            <div class="form-group">
+                <label>Apellido:</label>
+                <input type="text" id="paciente_inApellido">
+            </div>
+            <div class="form-group">
+                <label>Cedula:</label>
+                <input type="text" id="paciente_inCedula">
+            </div>
+            <div class="form-group">
+                <label>Sexo:</label>
+                <select id="paciente_inSexo">
+                    <option value="M">Masculino</option>
+                    <option value="F">Femenino</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Fecha Nacimiento:</label>
+                <input type="date" id="paciente_inFechaNacimiento">
+            </div>
+            <div class="form-group">
+                <label>Tipo Atencion:</label>
+                <select id="paciente_inTipoAtencion">
+                    <option value="1">Procedimiento ($30)</option>
+                    <option value="2">Consulta ($10)</option>
+                    <option value="3">Control ($0)</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button id="paciente_btCancelar">Cancelar</button>
+                <button id="paciente_btAceptar">Registrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import Cl_cClinica from "./dist/controllers/Cl_cClinica.js";
+        import Cl_vClinicaPlain from "./dist/views/Cl_vClinicaPlain.js";
+        import Cl_vPacientePlain from "./dist/views/Cl_vPacientePlain.js";
+
+        const vistaPrincipal = new Cl_vClinicaPlain();
+        const vistaFormulario = new Cl_vPacientePlain();
+        const controlador = new Cl_cClinica(vistaPrincipal, vistaFormulario);
+
+        const modal = document.getElementById("paciente");
+        const cerrarModal = () => {
+            vistaFormulario.ocultar();
+            vistaFormulario.limpiar();
+        };
+
+        if (modal) {
+            modal.onclick = (e) => {
+                if (e.target === modal) cerrarModal();
+            };
+        }
+    </script>
+
+</body>
+</html>
